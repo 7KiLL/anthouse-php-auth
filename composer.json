@@ -1,0 +1,19 @@
+{
+    "name": "7kill/simple-auth",
+    "description": "Simple test task",
+    "type": "project",
+    "license": "GNU",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files": ["app/helpers.php"]
+    },
+    "authors": [
+        {
+            "name": "7KiLL",
+            "email": "7killua@gmail.com"
+        }
+    ],
+    "require": {}
+}
