@@ -31,16 +31,16 @@ class Request
      */
     public function getQuery(string $key = null)
     {
-        if($key && isset($this->query[$key])) {
-            $this->query[$key];
-        } elseif(!$key) {
+        if ($key && isset($this->query[$key])) {
+            return rawurldecode($this->query[$key]);
+        } elseif (!$key) {
             return $this->query;
         } else {
             return null;
         }
     }
 
-    private function parseQuery(string $query)
+    private function parseQuery($query)
     {
         $params = preg_split('#&#', $query);
         foreach ($params as $param) {
@@ -59,12 +59,17 @@ class Request
         return $_POST[$key] ?? $_GET[$key] ?? null;
     }
 
+    public function paramBag(): array
+    {
+        return $_POST ?? [];
+    }
+
     /**
      * Returns method of captured request
      *
      * @return string
      */
-    public function getMethod() : string
+    public function getMethod(): string
     {
         return $this->method;
     }
@@ -74,9 +79,9 @@ class Request
      *
      * @return string
      */
-    public function getPath() : string
+    public function getPath(): string
     {
-        return $this->path;
+        return $this->path ?? '/';
     }
 
     /**
@@ -84,10 +89,19 @@ class Request
      *
      * @return string
      */
-    public function getUrl() : string
+    public function getUrl(): string
     {
         return $this->url;
     }
 
+    public function isGet(): bool
+    {
+        return $this->getMethod() === 'get';
+    }
+
+    public function isPost(): bool
+    {
+        return $this->getMethod() === 'post';
+    }
 
 }

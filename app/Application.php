@@ -4,6 +4,7 @@
 namespace App;
 
 
+use App\Classes\Database;
 use App\Classes\Renderer;
 use App\Classes\Request;
 use App\Classes\Router;
@@ -14,23 +15,25 @@ class Application
     private $renderer;
     private $response;
     private $router;
+    private $database;
 
     public function __construct(Request $request)
     {
         $this->request = $request;
         $this->renderer = new Renderer();
         $this->router = Router::getInstance();
-        require_once '../routes/web.php';
+        $this->database = Database::getInstance();
+
 
     }
 
     public function handle()
     {
-//        $res = $this->renderer->render('login', []);
-//        $this->respond($res);
-
-        var_dump($this->request->getQuery());
-        $content = $this->matchRoute($this->request->getPath());
+        try {
+            $content = $this->matchRoute($this->request->getPath());
+        } catch (\Exception $e) {
+            $content = $e->getMessage();
+        }
         $this->respond($content);
     }
 

@@ -1,22 +1,29 @@
 <?php
 
+
 namespace App\Classes;
 
-class Router
-{
 
+use App\Models\User;
+
+class Auth
+{
     private static $instance = null;
-    private $routes = [];
+
+    private $user = null;
 
     /**
      * gets the instance via lazy initialization (created on first usage)
      */
     public static function getInstance(): self
     {
-        require_once '../routes/web.php';
-
         if (static::$instance === null) {
-            static::$instance = new static();
+            $auth = new static();
+            if ($_SESSION['user_id']) {
+                $auth->user = (new User())->getById($_SESSION['user_id']);
+            }
+
+            static::$instance = $auth;
         }
 
         return static::$instance;
@@ -28,6 +35,24 @@ class Router
      */
     private function __construct()
     {
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    public function getId()
+    {
+        return $this->user['id'];
+    }
+
+    public function isAuthenticated() : bool
+    {
+        return (bool)$this->user;
     }
 
     /**
@@ -44,28 +69,13 @@ class Router
     {
     }
 
-
-    /**
-     * @param string $url
-     * @param \Closure|string $callback
-     * @return $this
-     */
-    public function addRoute(string $url, $callback)
+    public function authUser(int $id)
     {
-        $this->routes[$url] = $callback;
-        return $this;
+        $_SESSION['user_id'] = $id;
     }
 
-    public function getRoute(string $route, $renderer, $request)
+    public function logoutUser()
     {
-        if (isset($this->routes[$route]))
-            if ($this->routes[$route] instanceof \Closure) {
-                return $this->routes[$route]($renderer, $request);
-            } else {
-                $fqcn = preg_split('#@#', $this->routes[$route]);
-                return call_user_func([$fqcn[0], $fqcn[1]], $renderer, $request);
-            }
-        echo (new Renderer())->render('error', []);
-        exit();
+        unset($_SESSION['user_id']);
     }
 }
